@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Quiz IT — 105 pytań</title>
+  <meta name="description" content="Responsywny quiz IT: budowa komputera, bezpieczeństwo w sieci, bazy danych, sieci, Word, PowerPoint, Excel, C++, algorytmy.">
+  <style>
+    :root{
+      --bg: #0f1226;
+      --card: #171a36;
+      --accent: #6c8cff;
+      --accent-2:#9BE7FF;
+      --ok: #26d07c;
+      --bad:#ff5a6f;
+      --text: #e7ecff;
+      --muted:#aab2d7;
+      --chip:#222656;
+      --chip-text:#cbd4ff;
+      --focus: #ffd166;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius: 16px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+      background:
+        radial-gradient(1200px 600px at 10% -10%, rgba(108,140,255,.25), transparent 60%),
+        radial-gradient(900px 500px at 120% 10%, rgba(155,231,255,.15), transparent 60%),
+        linear-gradient(180deg, #0d0f22, #0f1226 40%);
+      color:var(--text);
+      line-height:1.5;
+    }
+    .wrap{
+      max-width: 1100px;
+      margin: clamp(12px, 2.5vw, 32px) auto;
+      padding: clamp(12px, 2.5vw, 24px);
+    }
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      margin-bottom:18px;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
+    .brand .logo{
+      width:42px;height:42px;
+      background: conic-gradient(from 210deg, var(--accent), var(--accent-2), var(--accent));
+      border-radius:12px;
+      box-shadow: var(--shadow);
+      position:relative;
+      overflow:hidden;
+    }
+    .brand .logo::after{
+      content:"";
+      position:absolute; inset:3px;
+      border-radius:10px;
+      background:#0e1130;
+      box-shadow: inset 0 0 0 2px rgba(255,255,255,.05);
+    }
+    h1{
+      font-size: clamp(20px, 3vw, 28px);
+      margin:0;
+      letter-spacing:.3px;
+    }
+    .badge{
+      background: linear-gradient(135deg, #21265a, #1b1f4b);
+      color: var(--chip-text);
+      border:1px solid rgba(255,255,255,.08);
+      padding:6px 10px; border-radius:999px;
+      font-size:12px;
+      display:inline-flex; gap:6px; align-items:center;
+    }
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
+      border:1px solid rgba(255,255,255,.08);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .topbar{
+      padding:12px 16px;
+      display:flex; align-items:center; gap:12px; justify-content:space-between;
+      border-bottom:1px solid rgba(255,255,255,.06);
+      background: linear-gradient(90deg, rgba(108,140,255,.08), rgba(155,231,255,.05) 60%, transparent);
+    }
+    .chips{
+      display:flex; flex-wrap:wrap; gap:8px;
+    }
+    .chip{
+      background: var(--chip);
+      color: var(--chip-text);
+      padding:6px 10px; border-radius:999px; font-size:12px;
+      border:1px solid rgba(255,255,255,.06);
+    }
+    .progress{
+      width:100%; height:10px; background:#101333; border-radius:999px; overflow:hidden;
+      border:1px solid rgba(255,255,255,.08);
+    }
+    .progress > div{
+      height:100%;
+      width:0%;
+      background: linear-gradient(90deg, var(--accent), #57d0ff);
+      transition: width .25s ease;
+    }
+    .qwrap{
+      padding:16px;
+      display:grid; grid-template-columns: 1fr; gap:16px;
+    }
+    .qhead{
+      display:flex; align-items:flex-start; justify-content:space-between; gap:12px;
+    }
+    .qtitle{
+      font-size: clamp(18px, 2.4vw, 22px);
+      margin:0;
+    }
+    .qmeta{color:var(--muted); font-size:14px}
+    .answers{
+      display:grid; gap:12px;
+      grid-template-columns: 1fr;
+    }
+    @media (min-width: 720px){
+      .answers{grid-template-columns: 1fr 1fr}
+    }
+    button.answer{
+      text-align:left; width:100%;
+      border:none; cursor:pointer;
+      background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01));
+      color:var(--text);
+      padding:14px 14px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.08);
+      position:relative;
+      transition: transform .06s ease, border-color .2s ease, background .2s ease, box-shadow .2s ease;
+    }
+    button.answer:hover{ transform: translateY(-1px); border-color: rgba(108,140,255,.45); box-shadow: 0 6px 18px rgba(108,140,255,.12)}
+    button.answer:focus-visible{ outline: 3px solid var(--focus)}
+    button.answer.correct{ border-color: rgba(38,208,124,.8); background: linear-gradient(180deg, rgba(38,208,124,.12), rgba(38,208,124,.05))}
+    button.answer.wrong{ border-color: rgba(255,90,111,.85); background: linear-gradient(180deg, rgba(255,90,111,.12), rgba(255,90,111,.05))}
+    button.answer .mark{
+      position:absolute; right:10px; top:10px; font-size:18px;
+    }
+    .explain{
+      background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:12px;
+      padding:12px; color:var(--chip-text); font-size:14px;
+    }
+    .controls{
+      display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:6px;
+    }
+    .btn{
+      display:inline-flex; align-items:center; gap:10px;
+      border:none; cursor:pointer;
+      padding:12px 16px; border-radius:12px;
+      font-weight:600; letter-spacing:.2px;
+      transition: transform .06s ease, box-shadow .2s ease, background .2s ease, color .2s ease;
+    }
+    .btn.primary{
+      background: linear-gradient(90deg, var(--accent), #57d0ff);
+      color:#0b0f2d;
+      box-shadow: 0 10px 24px rgba(108,140,255,.35);
+    }
+    .btn.primary:disabled{
+      filter: grayscale(0.3) brightness(.7);
+      cursor:not-allowed;
+      box-shadow:none;
+    }
+    .btn.ghost{
+      background: transparent; color: var(--chip-text);
+      border:1px solid rgba(255,255,255,.12);
+    }
+    .counter{ color:var(--muted); font-size:14px}
+    footer{ margin-top:18px; color:var(--muted); font-size:13px; text-align:center}
+    .summary{
+      padding:20px;
+      display:none;
+    }
+    .summary.show{ display:block}
+    .score{
+      display:flex; align-items:center; justify-content:center; gap:16px; flex-wrap:wrap;
+      margin-bottom:14px;
+    }
+    .score .big{
+      font-size: clamp(28px, 6vw, 42px);
+      font-weight:800;
+      background: linear-gradient(90deg, #fff, #b9c6ff);
+      -webkit-background-clip:text; background-clip:text; color: transparent;
+    }
+    .grid{
+      display:grid; gap:10px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+    .pill{
+      background: var(--chip);
+      color: var(--chip-text);
+      padding:10px 12px; border-radius:10px;
+      border:1px solid rgba(255,255,255,.08);
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+    }
+    .review{
+      margin-top:16px;
+      display:grid; gap:10px;
+    }
+    details{
+      background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:12px; padding:10px 12px;
+    }
+    summary{
+      cursor:pointer; color: var(--chip-text);
+      font-weight:600;
+      list-style:none;
+    }
+    summary::-webkit-details-marker{display:none}
+    .small{ font-size:13px; color:var(--muted)}
+    .hidden{display:none}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1>Quiz IT — 105 pytań</h1>
+          <div class="badge" aria-label="Poziom podstawowy">Poziom: podstawowy • Czas: bez limitu</div>
+        </div>
+      </div>
+      <div class="badge" id="scoreHead">Wynik: 0/0</div>
+    </header>
+
+    <div class="card">
+      <div class="topbar">
+        <div class="chips" id="topicChips"></div>
+        <div style="min-width:220px; display:flex; flex-direction:column; gap:8px;">
+          <div class="progress" aria-label="Postęp">
+            <div id="progressBar"></div>
+          </div>
+          <div class="counter" id="counterText">Pytanie 1 z 50</div>
+        </div>
+      </div>
+
+      <div class="qwrap">
+        <div class="qhead">
+          <div>
+            <div class="qmeta" id="qCat">Kategoria</div>
+            <h2 class="qtitle" id="qText">Pytanie</h2>
+          </div>
+          <div class="badge" id="qIndex">1/50</div>
+        </div>
+
+        <div class="answers" id="answers"></div>
+
+        <div id="explain" class="explain hidden" role="status"></div>
+
+        <div class="controls">
+          <button class="btn ghost" id="restartBtn" style="visibility:hidden">Zacznij od nowa</button>
+          <div style="display:flex; gap:10px; margin-left:auto">
+            <button class="btn ghost" id="skipBtn">Pomiń</button>
+            <button class="btn primary" id="nextBtn" disabled>Dalej</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="summary" id="summary">
+        <div class="score">
+          <div class="big" id="finalScore">0/50</div>
+          <div class="pill"><span>Skuteczność</span><strong id="finalPct">0%</strong></div>
+          <div class="pill"><span>Czas trwania</span><strong id="finalTime">–</strong></div>
+        </div>
+        <div class="grid" id="topicBreakdown"></div>
+        <div class="review">
+          <details>
+            <summary>Przegląd odpowiedzi</summary>
+            <div id="reviewList" class="small"></div>
+          </details>
+        </div>
+        <div style="margin-top:14px; display:flex; gap:10px; justify-content:flex-end">
+          <button class="btn ghost" id="retryBtn">Rozwiąż ponownie</button>
+          <button class="btn primary" id="shuffleBtn">Nowa kolejność pytań</button>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      Zagadnienia: budowa komputera, bezpieczeństwo w internecie, bazy danych, sieci, Word, PowerPoint, Excel, podstawy C++, algorytmy.
+    </footer>
+  </div>
+
+  <script>
+    // Dane pytań: 10 kategorii × 5 pytań = 50
+    const QUESTIONS = [
+  // Budowa komputera (15)
+  {cat:"Budowa komputera", q:"Który podzespół odpowiada za wykonywanie obliczeń i sterowanie pracą komputera?", a:["Pamięć RAM","Procesor (CPU)","Dysk SSD","Karta sieciowa"], c:1, e:"CPU wykonuje instrukcje, zarządza danymi i koordynuje pracę pozostałych komponentów."},
+  {cat:"Budowa komputera", q:"Która pamięć jest ulotna i służy do bieżącej pracy programów?", a:["ROM","HDD","RAM","Flash"], c:2, e:"RAM jest szybka i ulotna — po wyłączeniu zasilania traci zawartość."},
+  {cat:"Budowa komputera", q:"Co zapewnia zasilacz (PSU) w komputerze?", a:["Chłodzenie procesora","Konwersję prądu i zasilanie komponentów","Przyspieszenie grafiki 3D","Stałe połączenie z internetem"], c:1, e:"PSU zamienia prąd zmienny z gniazdka na napięcia stałe dla podzespołów."},
+  {cat:"Budowa komputera", q:"Który interfejs najczęściej łączy szybkie dyski SSD M.2?", a:["SATA II","PCI Express (NVMe)","IDE","USB 2.0"], c:1, e:"Dyski M.2 NVMe używają magistrali PCIe, co daje bardzo wysokie prędkości."},
+  {cat:"Budowa komputera", q:"Za wyświetlanie obrazu w grach 3D odpowiada głównie:", a:["Zasilacz","Karta graficzna (GPU)","Mostek południowy","Karta dźwiękowa"], c:1, e:"GPU renderuje grafikę 2D/3D i odciąża procesor."},
+  {cat:"Budowa komputera", q:"Co przechowuje dane nawet po wyłączeniu komputera?", a:["RAM","Procesor","Dysk twardy (HDD/SSD)","Karta graficzna"], c:2, e:"Dyski HDD i SSD przechowują dane trwale, w przeciwieństwie do RAM."},
+  {cat:"Budowa komputera", q:"Który element łączy wszystkie podzespoły komputera?", a:["Płyta główna","Karta graficzna","Zasilacz","Procesor"], c:0, e:"Płyta główna integruje i umożliwia komunikację między podzespołami."},
+  {cat:"Budowa komputera", q:"Do czego służy karta sieciowa w komputerze?", a:["Przetwarzanie grafiki","Łączenie z internetem","Chłodzenie procesora","Przechowywanie danych"], c:1, e:"Karta sieciowa umożliwia połączenie z siecią, np. przez Wi-Fi lub Ethernet."},
+  {cat:"Budowa komputera", q:"Co to jest BIOS w komputerze?", a:["Program antywirusowy","System operacyjny","Podstawowy system wejścia/wyjścia","Karta graficzna"], c:2, e:"BIOS inicjalizuje sprzęt podczas uruchamiania komputera."},
+  {cat:"Budowa komputera", q:"Który podzespół odpowiada za chłodzenie procesora?", a:["Wentylator/radiator","Zasilacz","Dysk SSD","Karta sieciowa"], c:0, e:"Wentylator i radiator odprowadzają ciepło z procesora."},
+  {cat:"Budowa komputera", q:"Co to jest karta rozszerzeń?", a:["Dodatkowy dysk","Karta pamięci RAM","Dodatkowy moduł, np. graficzny lub dźwiękowy","Zasilacz"], c:2, e:"Karty rozszerzeń dodają funkcje, np. lepszą grafikę lub dźwięk."},
+  {cat:"Budowa komputera", q:"Jak nazywa się jednostka centralna komputera?", a:["GPU","CPU","RAM","HDD"], c:1, e:"CPU to centralna jednostka przetwarzania, czyli 'mózg' komputera."},
+  {cat:"Budowa komputera", q:"Co przechowuje system operacyjny i programy?", a:["Procesor","Dysk twardy","Pamięć RAM","Karta graficzna"], c:1, e:"Dysk twardy (HDD/SSD) przechowuje system i dane."},
+  {cat:"Budowa komputera", q:"Co to jest port USB?", a:["Port do podłączenia monitora","Uniwersalny port do urządzeń zewnętrznych","Gniazdo dla procesora","Kabel sieciowy"], c:1, e:"USB umożliwia podłączanie urządzeń, np. myszy, klawiatury, pendrive’a."},
+  {cat:"Budowa komputera", q:"Do czego służy obudowa komputera?", a:["Zasilanie podzespołów","Ochrona i organizacja podzespołów","Przetwarzanie danych","Chłodzenie procesora"], c:1, e:"Obudowa chroni podzespoły i zapewnia ich odpowiednie rozmieszczenie."},
+  
+  // Bezpieczeństwo w internecie (15)
+  {cat:"Bezpieczeństwo w internecie", q:"Silne hasło to takie, które:", a:["Zawiera imię i rok urodzenia","Ma min. 12 znaków i różne typy znaków","Jest takie samo wszędzie","Składa się z samych liter"], c:1, e:"Długość i różnorodność znaków zwiększa trudność złamania hasła."},
+  {cat:"Bezpieczeństwo w internecie", q:"Dwuskładnikowe uwierzytelnianie (2FA) to:", a:["Wpisanie hasła dwa razy","Hasło + dodatkowy kod lub potwierdzenie","Login i hasło","Włączenie trybu incognito"], c:1, e:"2FA łączy coś, co wiesz (hasło), z czymś, co masz (kod/aplikacja) lub czym jesteś (biometria)."},
+  {cat:"Bezpieczeństwo w internecie", q:"Phishing to:", a:["Atak DDoS","Wyłudzanie danych przez podszywanie się","Szyfrowanie dysku","Legalny newsletter"], c:1, e:"Fałszywe maile/strony nakłaniają do podania loginów, kart itp."},
+  {cat:"Bezpieczeństwo w internecie", q:"Certyfikat HTTPS w przeglądarce oznacza:", a:["Gwarancję braku wirusów","Szyfrowane połączenie z serwerem","Brak reklam","Stronę państwową"], c:1, e:"HTTPS chroni dane w transmisji przez szyfrowanie."},
+  {cat:"Bezpieczeństwo w internecie", q:"Najbezpieczniej aktualizacje oprogramowania instalować:", a:["Z losowych stron","Z oficjalnych źródeł i automatycznych aktualizacji","Z forów","Z dysków USB znajomych"], c:1, e:"Oficjalne źródła i auto-aktualizacje redukują ryzyko złośliwego oprogramowania."},
+  {cat:"Bezpieczeństwo w internecie", q:"Co to jest VPN?", a:["Program antywirusowy","Wirtualna sieć prywatna","Przeglądarka internetowa","Kabel sieciowy"], c:1, e:"VPN szyfruje połączenie i ukrywa adres IP."},
+  {cat:"Bezpieczeństwo w internecie", q:"Co chroni komputer przed złośliwym oprogramowaniem?", a:["Karta graficzna","Program antywirusowy","Przeglądarka","Zasilacz"], c:1, e:"Antywirus skanuje i usuwa złośliwe oprogramowanie."},
+  {cat:"Bezpieczeństwo w internecie", q:"Czym jest tryb incognito w przeglądarce?", a:["Pełną ochroną danych","Nie zapisywaniem historii przeglądania","Szyfrowaniem danych","Blokadą wirusów"], c:1, e:"Tryb incognito nie zapisuje historii, ale nie chroni w pełni prywatności."},
+  {cat:"Bezpieczeństwo w internecie", q:"Co to jest firewall?", a:["Program do edycji zdjęć","Zapora sieciowa","Dysk zewnętrzny","Przeglądarka"], c:1, e:"Firewall blokuje nieautoryzowany dostęp do sieci."},
+  {cat:"Bezpieczeństwo w internecie", q:"Dlaczego nie należy klikać w nieznane linki?", a:["Zawsze są nieaktywne","Mogą zawierać wirusy lub phishing","Blokują przeglądarkę","Są zbyt długie"], c:1, e:"Nieznane linki mogą prowadzić do złośliwych stron."},
+  {cat:"Bezpieczeństwo w internecie", q:"Co to jest ransomware?", a:["Legalne oprogramowanie","Wirus żądający okupu","Gra online","Aplikacja biurowa"], c:1, e:"Ransomware blokuje dostęp do danych i żąda zapłaty."},
+  {cat:"Bezpieczeństwo w internecie", q:"Jak rozpoznać fałszywą stronę internetową?", a:["Ma dużo reklam","Nie ma HTTPS lub ma błędy w adresie","Jest kolorowa","Ma dużo zdjęć"], c:1, e:"Brak HTTPS i błędy w adresie to częste oznaki fałszywych stron."},
+  {cat:"Bezpieczeństwo w internecie", q:"Co to jest hasło jednorazowe?", a:["Hasło do jednorazowego logowania","Hasło używane przez rok","Login użytkownika","Hasło do Wi-Fi"], c:0, e:"Hasło jednorazowe wygasa po jednym użyciu, np. w 2FA."},
+  {cat:"Bezpieczeństwo w internecie", q:"Dlaczego warto regularnie zmieniać hasła?", a:["Zmniejsza ryzyko włamania","Zmienia adres IP","Przyspiesza komputer","Zmniejsza zużycie baterii"], c:0, e:"Regularna zmiana haseł utrudnia ich złamanie."},
+  {cat:"Bezpieczeństwo w internecie", q:"Co to jest kopia zapasowa?", a:["Kopia danych na innym nośniku","Nowy system operacyjny","Kopia przeglądarki","Kopia hasła"], c:0, e:"Kopia zapasowa chroni dane w razie awarii lub ataku."},
+  
+  // Sieci (15)
+  {cat:"Sieci", q:"Co to jest adres IP?", a:["Nazwa strony internetowej","Unikalny identyfikator urządzenia w sieci","Hasło do Wi-Fi","Typ kabla sieciowego"], c:1, e:"Adres IP pozwala urządzeniom komunikować się w sieci."},
+  {cat:"Sieci", q:"Co to jest router?", a:["Program antywirusowy","Urządzenie łączące sieci","Karta graficzna","Dysk zewnętrzny"], c:1, e:"Router kieruje ruch sieciowy między urządzeniami."},
+  {cat:"Sieci", q:"Czym jest Wi-Fi?", a:["Kabel sieciowy","Bezprzewodowa sieć internetowa","System operacyjny","Antywirus"], c:1, e:"Wi-Fi umożliwia bezprzewodowe połączenie z internetem."},
+  {cat:"Sieci", q:"Co to jest protokół HTTP?", a:["Szyfrowanie danych","Protokół przesyłania stron internetowych","Kabel sieciowy","Program do edycji"], c:1, e:"HTTP umożliwia przesyłanie stron WWW."},
+  {cat:"Sieci", q:"Co to jest LAN?", a:["Lokalna sieć komputerowa","Program antywirusowy","Dysk zewnętrzny","Protokół internetowy"], c:0, e:"LAN łączy urządzenia w małym obszarze, np. w domu."},
+  {cat:"Sieci", q:"Co oznacza skrót DNS?", a:["Dynamiczna sieć sterowania","System nazw domen","Digitalny system numerów","Sieć danych standardowych"], c:1, e:"DNS tłumaczy nazwy domen na adresy IP."},
+  {cat:"Sieci", q:"Co to jest modem?", a:["Urządzenie do edycji zdjęć","Urządzenie łączące z internetem","Karta graficzna","Zasilacz"], c:1, e:"Modem przekształca sygnał cyfrowy na analogowy i odwrotnie."},
+  {cat:"Sieci", q:"Czym jest Ethernet?", a:["Bezprzewodowa sieć","Technologia kablowych sieci LAN","Program antywirusowy","Protokół szyfrowania"], c:1, e:"Ethernet to standard kablowego połączenia sieciowego."},
+  {cat:"Sieci", q:"Co to jest adres MAC?", a:["Adres strony WWW","Unikalny identyfikator urządzenia sieciowego","Hasło do routera","Typ kabla"], c:1, e:"Adres MAC to unikalny identyfikator sprzętu w sieci."},
+  {cat:"Sieci", q:"Co to jest sieć WAN?", a:["Sieć lokalna","Sieć rozległa","Sieć bezprzewodowa","Sieć prywatna"], c:1, e:"WAN łączy urządzenia na dużym obszarze, np. internet."},
+  {cat:"Sieci", q:"Czym jest protokół FTP?", a:["Protokół przesyłania plików","Protokół szyfrowania","Program antywirusowy","Sieć Wi-Fi"], c:0, e:"FTP służy do przesyłania plików między komputerami."},
+  {cat:"Sieci", q:"Co to jest przepustowość sieci?", a:["Szybkość przesyłania danych","Liczba podłączonych urządzeń","Moc routera","Długość kabla"], c:0, e:"Przepustowość określa, ile danych można przesłać w jednostce czasu."},
+  {cat:"Sieci", q:"Co to jest SSID?", a:["Nazwa sieci Wi-Fi","Adres IP","Hasło routera","Protokół sieciowy"], c:0, e:"SSID to nazwa identyfikująca sieć Wi-Fi."},
+  {cat:"Sieci", q:"Co to jest przełącznik sieciowy (switch)?", a:["Urządzenie do edycji zdjęć","Urządzenie łączące urządzenia w sieci LAN","Karta graficzna","Dysk zewnętrzny"], c:1, e:"Switch łączy urządzenia w sieci lokalnej."},
+  {cat:"Sieci", q:"Co to jest ping?", a:["Gra komputerowa","Test szybkości połączenia sieciowego","Program antywirusowy","Kabel sieciowy"], c:1, e:"Ping mierzy czas odpowiedzi między urządzeniami w sieci."},
+  
+  // Bazy danych (15)
+  {cat:"Bazy danych", q:"Co to jest baza danych?", a:["Program do edycji tekstu","Zbiór uporządkowanych danych","Gra komputerowa","Sieć Wi-Fi"], c:1, e:"Baza danych przechowuje dane w uporządkowany sposób."},
+  {cat:"Bazy danych", q:"Co to jest tabela w bazie danych?", a:["Zestaw wierszy i kolumn z danymi","Plik tekstowy","Program antywirusowy","Sieć komputerowa"], c:0, e:"Tabela organizuje dane w wiersze i kolumny."},
+  {cat:"Bazy danych", q:"Czym jest klucz główny w bazie danych?", a:["Hasło do bazy","Unikalny identyfikator rekordu","Program do edycji","Adres IP"], c:1, e:"Klucz główny jednoznacznie identyfikuje każdy rekord."},
+  {cat:"Bazy danych", q:"Co to jest SQL?", a:["Język programowania gier","Język zapytań do baz danych","Protokół sieciowy","Program graficzny"], c:1, e:"SQL służy do zarządzania danymi w bazach."},
+  {cat:"Bazy danych", q:"Co przechowuje rekord w bazie danych?", a:["Całą bazę danych","Pojedynczy zestaw danych","Program antywirusowy","Sieć Wi-Fi"], c:1, e:"Rekord to pojedynczy wiersz danych w tabeli."},
+  {cat:"Bazy danych", q:"Co to jest relacyjna baza danych?", a:["Baza z losowymi danymi","Baza z powiązanymi tabelami","Program do edycji zdjęć","Sieć komputerowa"], c:1, e:"Relacyjne bazy danych łączą tabele przez klucze."},
+  {cat:"Bazy danych", q:"Co to jest zapytanie w bazie danych?", a:["Pytanie do użytkownika","Żądanie danych z bazy","Hasło do bazy","Plik tekstowy"], c:1, e:"Zapytanie pozwala pobrać lub zmodyfikować dane."},
+  {cat:"Bazy danych", q:"Co to jest pole w bazie danych?", a:["Kolumna w tabeli","Cała tabela","Sieć Wi-Fi","Program antywirusowy"], c:0, e:"Pole to pojedyncza kolumna przechowująca określony typ danych."},
+  {cat:"Bazy danych", q:"Czym jest klucz obcy?", a:["Hasło do bazy","Pole łączące tabele","Program graficzny","Adres IP"], c:1, e:"Klucz obcy łączy rekordy z różnych tabel."},
+  {cat:"Bazy danych", q:"Co to jest normalizacja bazy danych?", a:["Usuwanie danych","Optymalizacja struktury bazy","Dodawanie haseł","Szyfrowanie danych"], c:1, e:"Normalizacja eliminuje nadmiarowość danych."},
+  {cat:"Bazy danych", q:"Co przechowuje wiersz w tabeli bazy danych?", a:["Całą tabelę","Pojedynczy rekord","Hasło","Sieć"], c:1, e:"Wiersz to pojedynczy zestaw danych, czyli rekord."},
+  {cat:"Bazy danych", q:"Co to jest DBMS?", a:["System operacyjny","System zarządzania bazami danych","Gra komputerowa","Protokół sieciowy"], c:1, e:"DBMS to oprogramowanie do zarządzania bazami danych."},
+  {cat:"Bazy danych", q:"Co to jest indeks w bazie danych?", a:["Szybsze wyszukiwanie danych","Hasło do bazy","Plik tekstowy","Sieć Wi-Fi"], c:0, e:"Indeks przyspiesza wyszukiwanie w bazie danych."},
+  {cat:"Bazy danych", q:"Co to jest polecenie SELECT w SQL?", a:["Usuwanie danych","Pobieranie danych","Dodawanie danych","Szyfrowanie"], c:1, e:"SELECT służy do pobierania danych z bazy."},
+  {cat:"Bazy danych", q:"Co to jest kopia zapasowa bazy danych?", a:["Nowy system operacyjny","Kopia danych bazy","Plik tekstowy","Sieć"], c:1, e:"Kopia zapasowa chroni dane w razie awarii."},
+  
+  // Word (15)
+  {cat:"Word", q:"Co to jest Microsoft Word?", a:["Gra komputerowa","Edytor tekstu","Baza danych","Sieć"], c:1, e:"Word to program do tworzenia i edycji dokumentów tekstowych."},
+  {cat:"Word", q:"Jak zapisać dokument w Wordzie?", a:["Plik > Zapisz","Wstaw > Obraz","Plik > Drukuj","Format > Czcionka"], c:0, e:"Plik > Zapisz pozwala zapisać dokument na dysku."},
+  {cat:"Word", q:"Co to jest styl w Wordzie?", a:["Szyfrowanie dokumentu","Zestaw formatowania tekstu","Sieć Wi-Fi","Gra"], c:1, e:"Styl definiuje formatowanie, np. czcionkę, rozmiar."},
+  {cat:"Word", q:"Jak wstawić obraz w Wordzie?", a:["Wstaw > Obraz","Plik > Zapisz","Format > Tło","Widok > Powiększenie"], c:0, e:"Wstaw > Obraz pozwala dodać grafikę do dokumentu."},
+  {cat:"Word", q:"Co to jest nagłówek w Wordzie?", a:["Tytuł strony","Tekst u góry każdej strony","Plik tekstowy","Sieć"], c:1, e:"Nagłówek pojawia się na górze każdej strony dokumentu."},
+  {cat:"Word", q:"Jak wstawić numer strony w Wordzie?", a:["Wstaw > Numer strony","Plik > Drukuj","Format > Czcionka","Widok > Zoom"], c:0, e:"Wstaw > Numer strony dodaje numerację stron."},
+  {cat:"Word", q:"Co to jest spis treści w Wordzie?", a:["Lista rozdziałów z numerami stron","Plik tekstowy","Szyfrowanie","Sieć"], c:0, e:"Spis treści automatycznie generuje listę rozdziałów."},
+  {cat:"Word", q:"Jak zmienić czcionkę w Wordzie?", a:["Format > Czcionka","Wstaw > Obraz","Plik > Zapisz","Widok > Zoom"], c:0, e:"Format > Czcionka pozwala zmienić typ i rozmiar czcionki."},
+  {cat:"Word", q:"Co to jest margines w Wordzie?", a:["Odstęp od krawędzi strony","Tytuł dokumentu","Sieć Wi-Fi","Gra"], c:0, e:"Marginesy określają odstęp tekstu od krawędzi strony."},
+  {cat:"Word", q:"Jak wstawić tabelę w Wordzie?", a:["Wstaw > Tabela","Plik > Zapisz","Format > Czcionka","Widok > Zoom"], c:0, e:"Wstaw > Tabela pozwala dodać tabelę do dokumentu."},
+  {cat:"Word", q:"Co to jest tryb odczytu w Wordzie?", a:["Tryb edycji tekstu","Tryb przeglądania dokumentu","Szyfrowanie","Sieć"], c:1, e:"Tryb odczytu ułatwia przeglądanie dokumentu."},
+  {cat:"Word", q:"Jak wstawić przypis w Wordzie?", a:["Wstaw > Przypis","Plik > Drukuj","Format > Czcionka","Widok > Zoom"], c:0, e:"Wstaw > Przypis dodaje wyjaśnienia w dokumencie."},
+  {cat:"Word", q:"Co to jest interlinia w Wordzie?", a:["Odstęp między wierszami","Tytuł strony","Plik tekstowy","Sieć"], c:0, e:"Interlinia określa odstęp między liniami tekstu."},
+  {cat:"Word", q:"Jak zapisać dokument jako PDF w Wordzie?", a:["Plik > Zapisz jako > PDF","Wstaw > Obraz","Format > Czcionka","Widok > Zoom"], c:0, e:"Plik > Zapisz jako > PDF konwertuje dokument do PDF."},
+  {cat:"Word", q:"Co to jest szablon w Wordzie?", a:["Gotowy układ dokumentu","Plik graficzny","Sieć Wi-Fi","Gra"], c:0, e:"Szablon to wstępnie sformatowany dokument."},
+  
+  // Excel (15)
+  {cat:"Excel", q:"Co to jest Microsoft Excel?", a:["Edytor tekstu","Arkusz kalkulacyjny","Gra komputerowa","Sieć"], c:1, e:"Excel to program do tworzenia arkuszy kalkulacyjnych."},
+  {cat:"Excel", q:"Co to jest komórka w Excelu?", a:["Pojedyncze pole w arkuszu","Cały arkusz","Plik tekstowy","Sieć"], c:0, e:"Komórka to pojedyncze pole na dane w arkuszu."},
+  {cat:"Excel", q:"Jak wstawić formułę w Excelu?", a:["Znak = i formuła","Wstaw > Obraz","Plik > Zapisz","Widok > Zoom"], c:0, e:"Formuły zaczynają się od znaku =, np. =SUMA(A1:A10)."},
+  {cat:"Excel", q:"Co to jest funkcja SUMA w Excelu?", a:["Obliczanie średniej","Sumowanie wartości","Sortowanie danych","Szyfrowanie"], c:1, e:"SUMA dodaje wartości w wybranym zakresie."},
+  {cat:"Excel", q:"Jak wstawić wykres w Excelu?", a:["Wstaw > Wykres","Plik > Zapisz","Format > Czcionka","Widok > Zoom"], c:0, e:"Wstaw > Wykres pozwala wizualizować dane."},
+  {cat:"Excel", q:"Co to jest arkusz w Excelu?", a:["Pojedyncza tabela w pliku","Cały plik Excel","Plik tekstowy","Sieć"], c:0, e:"Arkusz to pojedyncza tabela w skoroszycie Excel."},
+  {cat:"Excel", q:"Jak zamrozić wiersze w Excelu?", a:["Widok > Zamroź okienka","Wstaw > Obraz","Plik > Zapisz","Format > Komórki"], c:0, e:"Zamroź okienka blokuje wiersze lub kolumny na ekranie."},
+  {cat:"Excel", q:"Co to jest funkcja JEŻELI w Excelu?", a:["Sortowanie danych","Warunkowe obliczenia","Sumowanie","Szyfrowanie"], c:1, e:"JEŻELI wykonuje obliczenia w zależności od warunku."},
+  {cat:"Excel", q:"Jak posortować dane w Excelu?", a:["Dane > Sortuj","Wstaw > Wykres","Plik > Zapisz","Widok > Zoom"], c:0, e:"Dane > Sortuj porządkuje dane w arkuszu."},
+  {cat:"Excel", q:"Co to jest filtr w Excelu?", a:["Szyfrowanie danych","Filtrowanie danych w tabeli","Plik tekstowy","Sieć"], c:1, e:"Filtr pozwala wyświetlać tylko wybrane dane."},
+  {cat:"Excel", q:"Co to jest skoroszyt w Excelu?", a:["Pojedynczy arkusz","Plik zawierający arkusze","Gra komputerowa","Sieć"], c:1, e:"Skoroszyt to plik Excel z wieloma arkuszami."},
+  {cat:"Excel", q:"Jak wstawić kolumnę w Excelu?", a:["Wstaw > Kolumny","Plik > Zapisz","Format > Czcionka","Widok > Zoom"], c:0, e:"Wstaw > Kolumny dodaje nową kolumnę do arkusza."},
+  {cat:"Excel", q:"Co to jest funkcja WYSZUKAJ.PIONOWO?", a:["Sumowanie danych","Wyszukiwanie danych w tabeli","Sortowanie","Szyfrowanie"], c:1, e:"WYSZUKAJ.PIONOWO znajduje dane w pionowej tabeli."},
+  {cat:"Excel", q:"Jak zapisać plik Excel jako CSV?", a:["Plik > Zapisz jako > CSV","Wstaw > Wykres","Format > Komórki","Widok > Zoom"], c:0, e:"CSV to format tekstowy do przechowywania danych."},
+  {cat:"Excel", q:"Co to jest formatowanie warunkowe w Excelu?", a:["Zmiana wyglądu komórek na podstawie warunków","Szyfrowanie danych","Sortowanie","Gra"], c:0, e:"Formatowanie warunkowe zmienia wygląd komórek w zależności od ich zawartości."},
+  
+  // PowerPoint (15)
+  {cat:"PowerPoint", q:"Co to jest Microsoft PowerPoint?", a:["Edytor tekstu","Program do prezentacji","Arkusz kalkulacyjny","Sieć"], c:1, e:"PowerPoint służy do tworzenia prezentacji slajdów."},
+  {cat:"PowerPoint", q:"Co to jest slajd w PowerPoint?", a:["Pojedyncza strona prezentacji","Cały plik","Plik tekstowy","Sieć"], c:0, e:"Slajd to pojedyncza strona w prezentacji."},
+  {cat:"PowerPoint", q:"Jak wstawić nowy slajd w PowerPoint?", a:["Wstaw > Nowy slajd","Plik > Zapisz","Format > Czcionka","Widok > Zoom"], c:0, e:"Wstaw > Nowy slajd dodaje nową stronę do prezentacji."},
+  {cat:"PowerPoint", q:"Co to jest motyw w PowerPoint?", a:["Gotowy zestaw kolorów i czcionek","Plik tekstowy","Szyfrowanie","Sieć"], c:0, e:"Motyw definiuje styl wizualny prezentacji."},
+  {cat:"PowerPoint", q:"Jak wstawić obraz w PowerPoint?", a:["Wstaw > Obraz","Plik > Zapisz","Format > Czcionka","Widok > Zoom"], c:0, e:"Wstaw > Obraz dodaje grafikę do slajdu."},
+  {cat:"PowerPoint", q:"Co to jest animacja w PowerPoint?", a:["Ruch obiektów na slajdzie","Szyfrowanie","Plik tekstowy","Sieć"], c:0, e:"Animacje dodają efekty ruchu do elementów slajdu."},
+  {cat:"PowerPoint", q:"Jak wstawić wideo w PowerPoint?", a:["Wstaw > Wideo","Plik > Zapisz","Format > Czcionka","Widok > Zoom"], c:0, e:"Wstaw > Wideo pozwala dodać film do slajdu."},
+  {cat:"PowerPoint", q:"Co to jest przejście w PowerPoint?", a:["Efekt zmiany między slajdami","Plik tekstowy","Szyfrowanie","Sieć"], c:0, e:"Przejścia dodają efekty wizualne przy zmianie slajdów."},
+  {cat:"PowerPoint", q:"Jak zapisać prezentację jako PDF?", a:["Plik > Zapisz jako > PDF","Wstaw > Obraz","Format > Czcionka","Widok > Zoom"], c:0, e:"Zapisz jako PDF konwertuje prezentację do PDF."},
+  {cat:"PowerPoint", q:"Co to jest wzorzec slajdów w PowerPoint?", a:["Szablon dla wszystkich slajdów","Plik tekstowy","Szyfrowanie","Sieć"], c:0, e:"Wzorzec slajdów definiuje układ i styl slajdów."},
+  {cat:"PowerPoint", q:"Jak wstawić tabelę w PowerPoint?", a:["Wstaw > Tabela","Plik > Zapisz","Format > Czcionka","Widok > Zoom"], c:0, e:"Wstaw > Tabela dodaje tabelę do slajdu."},
+  {cat:"PowerPoint", q:"Co to jest notatka w PowerPoint?", a:["Tekst dla prezentera","Plik tekstowy","Szyfrowanie","Sieć"], c:0, e:"Notatki pomagają prezenterowi podczas prezentacji."},
+  {cat:"PowerPoint", q:"Jak uruchomić pokaz slajdów?", a:["Pokaz slajdów > Od pierwszego slajdu","Plik > Zapisz","Format > Czcionka","Widok > Zoom"], c:0, e:"Pokaz slajdów uruchamia prezentację."},
+  {cat:"PowerPoint", q:"Co to jest układ slajdu w PowerPoint?", a:["Rozmieszczenie elementów na slajdzie","Plik tekstowy","Szyfrowanie","Sieć"], c:0, e:"Układ slajdu określa rozmieszczenie tekstu i obrazów."},
+  {cat:"PowerPoint", q:"Jak dodać hiperłącze w PowerPoint?", a:["Wstaw > Hiperłącze","Plik > Zapisz","Format > Czcionka","Widok > Zoom"], c:0, e:"Hiperłącze pozwala przejść do strony lub slajdu."}
+];
+
+    // Stan
+    let order = [];            // kolejność pytań
+    let idx = 0;               // indeks bieżącego pytania w 'order'
+    let score = 0;             // liczba poprawnych
+    let answered = 0;          // ile odpowiedzi udzielono
+    let perTopic = {};         // statystyki per kategoria
+    let userAnswers = [];      // historia odpowiedzi
+    let startTime = 0;
+
+    // Narzędzia
+    const $ = s => document.querySelector(s);
+    const $$ = s => document.querySelectorAll(s);
+
+    function shuffle(arr){
+      const a = arr.slice();
+      for(let i=a.length-1;i>0;i--){
+        const j = Math.floor(Math.random()*(i+1));
+        [a[i],a[j]]=[a[j],a[i]];
+      }
+      return a;
+    }
+
+    function init(){
+      // Ustawienia początkowe
+      perTopic = {};
+      QUESTIONS.forEach((q,i)=>{ perTopic[q.cat] = perTopic[q.cat] || {total:0, ok:0}; perTopic[q.cat].total++; });
+      order = Array.from({length:QUESTIONS.length}, (_,i)=>i);
+      order = shuffle(order); // losowa kolejność pytań
+      idx = 0; score = 0; answered = 0; userAnswers = [];
+      startTime = performance.now();
+
+      // Chipy tematów
+      renderTopicChips();
+
+      // Pierwsze pytanie
+      renderQuestion();
+      updateHeader();
+      $('#summary').classList.remove('show');
+      $('.qwrap').style.display = 'block';
+      $('#restartBtn').style.visibility = 'hidden';
+      $('#nextBtn').disabled = true;
+      $('#skipBtn').disabled = false;
+    }
+
+    function renderTopicChips(){
+      const cont = $('#topicChips');
+      cont.innerHTML = '';
+      const cats = [...new Set(QUESTIONS.map(q=>q.cat))];
+      cats.forEach(cat=>{
+        const pill = document.createElement('div');
+        pill.className = 'chip';
+        pill.textContent = cat;
+        cont.appendChild(pill);
+      });
+    }
+
+    function renderQuestion(){
+      const qIndex = order[idx];
+      const q = QUESTIONS[qIndex];
+
+      $('#qCat').textContent = q.cat;
+      $('#qText').textContent = q.q;
+      $('#qIndex').textContent = `${idx+1}/${QUESTIONS.length}`;
+      $('#counterText').textContent = `Pytanie ${idx+1} z ${QUESTIONS.length}`;
+
+      // Przygotuj odpowiedzi z losową kolejnością
+      const answersCont = $('#answers');
+      answersCont.innerHTML = '';
+      const options = q.a.map((text, i) => ({text, correct: i === q.c}));
+      const shuffled = shuffle(options);
+
+      // zapamiętaj mapowanie poprawnej odpowiedzi po przetasowaniu
+      const correctPos = shuffled.findIndex(opt => opt.correct);
+
+      shuffled.forEach((opt, i)=>{
+        const btn = document.createElement('button');
+        btn.className = 'answer';
+        btn.setAttribute('type','button');
+        btn.setAttribute('data-correct', opt.correct ? '1' : '0');
+        btn.setAttribute('data-index', i);
+        btn.innerHTML = `<span>${opt.text}</span><span class="mark" aria-hidden="true">○</span>`;
+        btn.addEventListener('click', ()=> handleAnswer(btn, correctPos, q));
+        answersCont.appendChild(btn);
+      });
+
+      // schowaj wyjaśnienie
+      const ex = $('#explain');
+      ex.classList.add('hidden');
+      ex.textContent = '';
+
+      // przyciski
+      $('#nextBtn').disabled = true;
+    }
+
+    function handleAnswer(btn, correctPos, q){
+      // zapobiegaj wielokrotnemu kliku
+      if ($('#nextBtn').disabled === false) return; // odpowiedź już padła
+
+      const answers = $$('.answer');
+      answers.forEach(b => b.disabled = true);
+
+      const chosenIndex = parseInt(btn.getAttribute('data-index'),10);
+      const isCorrect = chosenIndex === correctPos;
+
+      // Oznaczania
+      btn.classList.add(isCorrect ? 'correct' : 'wrong');
+      // Zaznacz poprawną zawsze
+      answers[correctPos].classList.add('correct');
+
+      // Wynik i statystyki
+      answered++;
+      if(isCorrect){
+        score++;
+        perTopic[q.cat].ok++;
+      }
+
+      // Wyjaśnienie
+      const ex = $('#explain');
+      ex.classList.remove('hidden');
+      ex.innerHTML = (isCorrect ? 'Dobrze! ' : 'Niepoprawnie. ') + (q.e ? q.e : '');
+
+      // Odśwież nagłówek i pasek
+      updateHeader();
+
+      // Historia do przeglądu
+      userAnswers.push({
+        cat: q.cat,
+        q: q.q,
+        correct: isCorrect,
+        explain: q.e,
+        pickedText: btn.querySelector('span').textContent,
+        correctText: answers[correctPos].querySelector('span').textContent
+      });
+
+      // Przycisk dalej
+      $('#nextBtn').disabled = false;
+    }
+
+    function updateHeader(){
+      const pct = (answered / QUESTIONS.length) * 100;
+      $('#progressBar').style.width = `${pct}%`;
+      $('#scoreHead').textContent = `Wynik: ${score}/${answered}`;
+    }
+
+    function nextQuestion(skip=false){
+      if (idx < order.length - 1){
+        idx++;
+        renderQuestion();
+      } else {
+        showSummary();
+      }
+    }
+
+    function showSummary(){
+      const ms = performance.now() - startTime;
+      const sec = Math.round(ms/1000);
+      const mm = Math.floor(sec/60).toString().padStart(2,'0');
+      const ss = (sec%60).toString().padStart(2,'0');
+
+      // Ukryj quiz, pokaż podsumowanie
+      $('.qwrap').style.display = 'none';
+      const sum = $('#summary');
+      sum.classList.add('show');
+
+      // Wynik
+      $('#finalScore').textContent = `${score}/${QUESTIONS.length}`;
+      const pct = Math.round((score/QUESTIONS.length)*100);
+      $('#finalPct').textContent = `${pct}%`;
+      $('#finalTime').textContent = `${mm}:${ss}`;
+
+      // Rozbicie na kategorie
+      const tb = $('#topicBreakdown');
+      tb.innerHTML = '';
+      Object.entries(perTopic).forEach(([cat, obj])=>{
+        const div = document.createElement('div');
+        div.className = 'pill';
+        const p = Math.round((obj.ok/obj.total)*100);
+        div.innerHTML = `<span>${cat}</span><strong>${obj.ok}/${obj.total} • ${p}%</strong>`;
+        tb.appendChild(div);
+      });
+
+      // Przegląd odpowiedzi
+      const rl = $('#reviewList');
+      rl.innerHTML = userAnswers.map((ua, i)=>{
+        const color = ua.correct ? 'style="color:#6ef7b0"' : 'style="color:#ff8492"';
+        return `
+          <div style="margin:8px 0; padding:10px; border:1px solid rgba(255,255,255,.08); border-radius:10px">
+            <div class="small" ${color}><strong>Pyt. ${i+1}</strong> — ${ua.cat} • ${ua.correct ? 'Poprawna' : 'Błędna'}</div>
+            <div style="margin:6px 0 4px"><strong>${ua.q}</strong></div>
+            <div><span class="small">Twoja odpowiedź:</span> ${ua.pickedText}</div>
+            ${ua.correct ? '' : `<div><span class="small">Poprawna:</span> ${ua.correctText}</div>`}
+            ${ua.explain ? `<div class="small" style="margin-top:6px; color:#cbd4ff">${ua.explain}</div>` : ''}
+          </div>
+        `;
+      }).join('');
+
+      // Przyciski
+      $('#restartBtn').style.visibility = 'visible';
+      $('#skipBtn').disabled = true;
+    }
+
+    // Zdarzenia
+    $('#nextBtn').addEventListener('click', ()=> nextQuestion());
+    $('#skipBtn').addEventListener('click', ()=>{
+      // zapisanie jako pominięte (bez odpowiedzi)
+      const qIndex = order[idx];
+      const q = QUESTIONS[qIndex];
+      userAnswers.push({
+        cat: q.cat,
+        q: q.q,
+        correct: false,
+        explain: q.e,
+        pickedText: 'Pominięto',
+        correctText: q.a[q.c]
+      });
+      answered++; // traktujemy jako podejście (dla postępu), ale nie zwiększa score
+      updateHeader();
+      nextQuestion(true);
+    });
+    $('#restartBtn').addEventListener('click', init);
+    $('#retryBtn').addEventListener('click', init);
+    $('#shuffleBtn').addEventListener('click', ()=>{
+      order = shuffle(order);
+      idx = 0; score = 0; answered = 0; userAnswers = [];
+      perTopic = {};
+      QUESTIONS.forEach((q,i)=>{ perTopic[q.cat] = perTopic[q.cat] || {total:0, ok:0}; perTopic[q.cat].total++;});
+      startTime = performance.now();
+      $('#summary').classList.remove('show');
+      $('.qwrap').style.display = 'block';
+      renderQuestion();
+      updateHeader();
+      $('#restartBtn').style.visibility = 'hidden';
+      $('#nextBtn').disabled = true;
+      $('#skipBtn').disabled = false;
+    });
+
+    // Start
+    init();
+  </script>
+</body>
+</html>
+```
